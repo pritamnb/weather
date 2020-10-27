@@ -2,7 +2,8 @@
 const express = require('express');
 const morgan = require('morgan');
 const app = express();
-
+var fs = require('fs');
+var path = require('path');
 const PORT = process.env.PORT || 5000;
 
 app.use(function (req, res, next) {
@@ -14,8 +15,9 @@ app.use(function (req, res, next) {
   );
   next();
 });
-
-app.use(morgan('dev'));
+// create a write stream (in append mode)
+var accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' })
+app.use(morgan('combined', { stream: accessLogStream }));
 require('./startup/db')();
 require('./startup/routes')(app);
 
